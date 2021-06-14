@@ -1,0 +1,12 @@
+pluginManagement {
+    repositories {
+        maven { url uri("$rootDir/repo") }
+        mavenCentral()
+    }
+}
+
+rootProject.name = "AndroidGodModel"
+include ':godModel'
+include ':myapp'
+include ':hashCore'
+include ':hashPlugin'

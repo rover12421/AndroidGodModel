@@ -1,0 +1,33 @@
+plugins {
+    id 'java-library'
+    id 'kotlin'
+    id 'maven-publish'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+}
+
+version = '0.1'
+
+publishing {
+    repositories {
+        maven {
+            url uri("$rootDir/repo")
+        }
+    }
+
+    publications {
+        hashCore(MavenPublication) {
+            groupId 'com.rover12421.android.godmodel'
+            artifactId 'hashCore'
+
+            from components.java
+        }
+    }
+}
