@@ -3,6 +3,16 @@ package com.rover12421.godmodel.test.myapp
 import com.rover12421.android.godmodel.hash.core.*
 
 class HashCheck {
+    companion object {
+        const val s1 = "ssss111111"
+
+        @Hash
+        const val s2 = "ssss111111"
+    }
+
+    val i1 = 100
+    var i2 = 200
+
     @LongHash
     fun publicFun() {
         println("my is public")

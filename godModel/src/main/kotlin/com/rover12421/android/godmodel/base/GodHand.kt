@@ -63,10 +63,10 @@ open class GodHand(project: Project, godHandProp: GodHandProp) : GodHandBase(pro
             return false
         }
         if (godHands.firstOrNull {
-//                logger.log(LogLevel.WARN, "[${it.godHandProp.name}] isHandClass : $className >>> ${it.isHandClass(className)}")
+                logger.log(LogLevel.WARN, "[${it.godHandProp.name}] isHandClass : $className >>> ${it.isHandClass(className)}")
                 it.isHandClass(className)
         } != null) {
-//            logger.log(LogLevel.WARN, "isHandClass : $className is true")
+            logger.log(LogLevel.WARN, "isHandClass : $className is true")
             return true
         }
         return false
@@ -114,7 +114,7 @@ open class GodHand(project: Project, godHandProp: GodHandProp) : GodHandBase(pro
 
     private fun handClass(classBytes: ByteArray, isJar: Boolean): ByteArray {
         val classReader = ClassReader(classBytes)
-        logger.log(LogLevel.WARN, "[handClass] ${classReader.className} >>1 size : ${godHands.size}")
+//        logger.log(LogLevel.WARN, "[handClass] ${classReader.className} >>1 size : ${godHands.size}")
         val className: String = classReader.className.replace("/", ".")
         val cr = wrapperClassReader(classReader, className, isJar)
         val cw = wrapperClassWriter(GodClassWriter(classLoader, ClassWriter.COMPUTE_MAXS), className, isJar)

@@ -107,7 +107,7 @@ open class GodModelTransform(val project: Project) : Transform() {
                     ) {
                 logger.warn("[GodModel] add GodHand : $hand")
                 godHand.godHands.add(hand)
-                logger.warn("[GodModel] godHand.godHands size : ${godHand.godHands.size}")
+//                logger.warn("[GodModel] godHand.godHands size : ${godHand.godHands.size}")
             } else {
                 logger.warn("[GodModel] skip GodHand : $hand (${hand.getRunVariant()})")
             }

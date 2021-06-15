@@ -13,6 +13,9 @@ class HashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(project,
 
     override fun handClassNode(cn: ClassNode) {
         logger.log(LogLevel.WARN, "[HashGodHand] class: ${cn.name} ")
+        cn.visibleAnnotations?.forEach { annotationNode ->
+            logger.log(LogLevel.WARN, "[HashGodHand] >>>[${cn.name}] Clazz: annotationNode.desc : ${annotationNode.desc}")
+        }
         cn.fields.forEach { fieldNode ->
             fieldNode.visibleAnnotations?.forEach { annotationNode ->
                 logger.log(LogLevel.WARN, "[HashGodHand] >>>[${cn.name}] Field: ${fieldNode.name} => annotationNode.desc : ${annotationNode.desc}")

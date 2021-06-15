@@ -2,7 +2,6 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'com.rover12421.android.godmodel.base'
-//    id 'com.rover12421.android.godmodel.hash'
 }
 
 android {
@@ -62,7 +61,7 @@ GodModel {
     godHands {
         hash {
             type = com.rover12421.android.godmodel.hash.plugin.HashGodHand.class
-            filterRegex = "com\\.rover12421\\..+"
+            filterRegex = /com\.rover12421\..+/
         }
     }
 }

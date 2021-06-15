@@ -18,7 +18,7 @@ open class GodHandBase(val project: Project, val godHandProp: GodHandProp) {
 
     open fun isHandJar(): Boolean = !godHandProp.ignoreJar
     open fun isHandClass(className: String): Boolean {
-        val ret = godHandProp.filterRegex.toRegex().matches(className)
+        val ret = godHandProp.filterRegex.matches(className)
 //        logger.log(LogLevel.WARN, "[${godHandProp.name}] : ${godHandProp.filterRegex} matches $className = $ret")
         return ret
     }
