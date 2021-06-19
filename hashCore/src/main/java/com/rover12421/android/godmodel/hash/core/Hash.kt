@@ -6,17 +6,23 @@ package com.rover12421.android.godmodel.hash.core
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class IntHash(
-    vararg val types: IntHashType = [IntHashType.Size, IntHashType.HashCode]
+    vararg val types: IntHashType
 )
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class LongHash(
-    vararg val types: LongHashType = [LongHashType.Size, LongHashType.HashCode]
+    vararg val types: LongHashType
 )
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class StringHash(
-    vararg val types: StringHashType = [StringHashType.Size, StringHashType.HashCode]
+    vararg val types: StringHashType
+)
+
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class HashObjectName(
+    val name: String
 )

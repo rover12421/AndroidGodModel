@@ -12,27 +12,35 @@ import org.gradle.api.logging.Logger
 import java.io.File
 import java.nio.file.Paths
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
 
 open class GodModelTransform(val project: Project) : Transform() {
     private val logger: Logger = project.logger
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
-    private val workList = mutableListOf<Job>()
+    private val workList = CopyOnWriteArrayList<Job>()
 
     private fun addTask(block: () -> Unit) {
-        workList.add(coroutineScope.launch {
+        if (godModelExtension.parallel) {
+            workList.add(coroutineScope.launch {
+                try {
+                    block.invoke()
+                } catch (e: Throwable) {
+                    logger.log(LogLevel.WARN, "GodModelTransform", e)
+                }
+            })
+        } else {
             try {
                 block.invoke()
             } catch (e: Throwable) {
                 logger.log(LogLevel.WARN, "GodModelTransform", e)
             }
-        })
+        }
     }
 
     private fun waitAllTaskCompleted() {
         runBlocking {
             workList.joinAll()
-            workList.clear()
         }
     }
 

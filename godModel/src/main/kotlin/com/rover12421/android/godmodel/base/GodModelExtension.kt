@@ -10,6 +10,7 @@ open class GodModelExtension(project: Project) {
     var cacheable: Boolean = true
     var incremental: Boolean = true
     var ignoreJar: Boolean = true
+    var parallel: Boolean = true // 并发执行
     var godHands: NamedDomainObjectContainer<GodHandProp> = project.container(GodHandProp::class.java)
 
     fun godHands(action: Action<NamedDomainObjectContainer<GodHandProp>>) {
