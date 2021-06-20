@@ -6,6 +6,8 @@ import com.rover12421.android.godmodel.base.util.toJvmType
 import com.rover12421.android.godmodel.hash.core.*
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.codec.digest.MurmurHash2
+import org.apache.commons.codec.digest.MurmurHash3
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
 import org.objectweb.asm.AnnotationVisitor
@@ -27,6 +29,11 @@ class HashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(project,
         prop.skipField              = godHandProp.getBoolenProp("skipField", false)
         prop.skipNonStaticField     = godHandProp.getBoolenProp("skipNonStaticField", false)
         prop.skipNonStaticMethod    = godHandProp.getBoolenProp("skipNonStaticMethod", false)
+
+        prop.murmurHash2IntSeed     = godHandProp.getIntProp("murmurHash2IntSeed", 0x9747b28c.toInt())
+        prop.murmurHash2LongSeed    = godHandProp.getIntProp("murmurHash2LongSeed", 0xe17a1465.toInt())
+        prop.murmurHash3IntSeed     = godHandProp.getIntProp("murmurHash3IntSeed", 104729)
+        prop.murmurHash3LongSeed    = godHandProp.getIntProp("murmurHash3LongSeed", 104729)
     }
 
     override fun isHandClassNode(): Boolean {
@@ -130,9 +137,12 @@ class HashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(project,
             val values = hashTypeSet.map { hashType ->
                 val annotationNode = AnnotationNode(IntHashValue::class.toJvmType())
                 annotationNode.visitEnum("type", IntHashType::class.toJvmType(), hashType.name)
+                val bytes = objName.toByteArray()
                 val value: Int = when(hashType) {
                     IntHashType.Size -> objName.length
                     IntHashType.HashCode -> objName.hashCode()
+                    IntHashType.MurmurHash2 -> MurmurHash2.hash32(bytes, bytes.size, prop.murmurHash2IntSeed)
+                    IntHashType.MurmurHash3 -> MurmurHash3.hash32x86(bytes, 0, bytes.size, prop.murmurHash3IntSeed)
                     else -> 0
                 }
                 annotationNode.visit("value", value)
@@ -147,9 +157,13 @@ class HashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(project,
             val values = hashTypeSet.map { hashType ->
                 val annotationNode = AnnotationNode(LongHashValue::class.toJvmType())
                 annotationNode.visitEnum("type", LongHashType::class.toJvmType(), hashType.name)
+                val bytes = objName.toByteArray()
                 val value: Long = when(hashType) {
                     LongHashType.Size -> objName.length.toLong()
                     LongHashType.HashCode -> objName.hashCode().toLong()
+                    LongHashType.MurmurHash2 -> MurmurHash2.hash64(bytes, bytes.size, prop.murmurHash2LongSeed)
+                    LongHashType.MurmurHash3Part1 -> MurmurHash3.hash128x64(bytes, 0, bytes.size, prop.murmurHash3LongSeed)[0]
+                    LongHashType.MurmurHash3Part2 -> MurmurHash3.hash128x64(bytes, 0, bytes.size, prop.murmurHash3LongSeed)[1]
                     else -> 0L
                 }
                 annotationNode.visit("value", value)

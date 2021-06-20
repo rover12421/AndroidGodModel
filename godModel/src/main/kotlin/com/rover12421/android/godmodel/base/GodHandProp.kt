@@ -22,11 +22,21 @@ open class GodHandProp(val name: String) {
 
     fun getIntProp(name: String, default: Int): Int {
         val prop = property[name] ?: return default
-        return prop.toString().toIntOrNull()?:default
+        val numStr = prop.toString().toLowerCase(Locale.getDefault())
+        return if (numStr.startsWith("0x")) {
+            numStr.toIntOrNull(16)?:default
+        } else {
+            numStr.toIntOrNull()?:default
+        }
     }
 
     fun getLongProp(name: String, default: Long): Long {
         val prop = property[name] ?: return default
-        return prop.toString().toLongOrNull()?:default
+        val numStr = prop.toString().toLowerCase(Locale.getDefault())
+        return if (numStr.startsWith("0x")) {
+            numStr.toLongOrNull(16)?:default
+        } else {
+            numStr.toLongOrNull()?:default
+        }
     }
 }

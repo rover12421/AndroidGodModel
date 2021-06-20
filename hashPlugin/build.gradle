@@ -22,6 +22,7 @@ dependencies {
 
     implementation("com.rover12421.android.godmodel:hashCore:0.1")
     implementation("com.rover12421.android.godmodel:base:0.1")
+    implementation("commons-codec:commons-codec:1.15")
 }
 
 gradlePlugin {
