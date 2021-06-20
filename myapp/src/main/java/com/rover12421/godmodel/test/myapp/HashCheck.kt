@@ -9,14 +9,18 @@ object HashObject {
     const val sss = "s1234567890"
     const val int2 = 222
     const val long3 = 333L
+
+    internal val i4 = 444
+    private val s5 = "5555"
 }
 
+@LongHash(LongHashType.HashCode)
 class HashCheck {
     companion object {
-        const val s1 = "ssss11113"
+        const val s1 = "ssss1111345"
 
         @Hash()
-        const val s2 = "ssss111111"
+        const val s2 = "ssss1111111"
     }
 
     val i1 = 100
@@ -25,6 +29,10 @@ class HashCheck {
     @LongHash(LongHashType.Size)
     fun publicFun() {
         println("my is public")
+    }
+
+    fun publicFun222() {
+        println("my is public222 - 0123")
     }
 
     @StringHash

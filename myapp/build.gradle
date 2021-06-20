@@ -63,6 +63,7 @@ GodModel {
         hash {
             type = com.rover12421.android.godmodel.hash.plugin.HashGodHand.class
             filterRegex = /com\.rover12421\..+/
+            property["skipMethod"] = true
         }
     }
 }

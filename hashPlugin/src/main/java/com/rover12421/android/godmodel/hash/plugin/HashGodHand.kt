@@ -9,9 +9,24 @@ import org.gradle.api.logging.LogLevel
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.ClassNode
+import java.lang.reflect.Modifier
 
 @Suppress("UNCHECKED_CAST")
 class HashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(project, godHandProp) {
+
+    val prop = HashPluginProp()
+
+    init {
+        prop.removeHashObjectNameAnnotation = godHandProp.getBoolenProp("removeHashObjectNameAnnotation", true)
+        prop.skipConstructor        = godHandProp.getBoolenProp("skipConstructor", true)
+        prop.skipNonPublicField     = godHandProp.getBoolenProp("skipNonPublicField", true)
+        prop.skipNonPublicMethod    = godHandProp.getBoolenProp("skipNonPublicMethod", true)
+        prop.skipMethod             = godHandProp.getBoolenProp("skipMethod", false)
+        prop.skipField              = godHandProp.getBoolenProp("skipField", false)
+        prop.skipNonStaticField     = godHandProp.getBoolenProp("skipNonStaticField", false)
+        prop.skipNonStaticMethod    = godHandProp.getBoolenProp("skipNonStaticMethod", false)
+    }
+
     override fun isHandClassNode(): Boolean {
         return true
     }
@@ -170,17 +185,39 @@ class HashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(project,
         val classIntHashTypeSet = checkIntHash(cn.visibleAnnotations)
         val classLongHashTypeSet = checkLongHash(cn.visibleAnnotations)
         val classStringHashTypeSet = checkStringHash(cn.visibleAnnotations)
+        val needAddAnnotations = classIntHashTypeSet.isNotEmpty() || classLongHashTypeSet.isNotEmpty() || classStringHashTypeSet.isNotEmpty()
 
         cn.fields.forEach { fieldNode ->
             var objName = fieldNode.name
             val objNameAnns = fieldNode.visibleAnnotations?.filter { it.desc.equals(HashObjectName::class.toJvmType()) }
             if (!objNameAnns.isNullOrEmpty() && objNameAnns.first().values.size == 2) {
                 objName = objNameAnns.first().values[1].toString()
+                if (prop.removeHashObjectNameAnnotation) {
+                    fieldNode.visibleAnnotations.removeAll(objNameAnns)
+                }
             }
 
-            val intHashTypeSet = checkIntHash(fieldNode.visibleAnnotations).apply { addAll(classIntHashTypeSet) }
-            val longHashTypeSet = checkLongHash(fieldNode.visibleAnnotations).apply { addAll(classLongHashTypeSet) }
-            val stringHashTypeSet = checkStringHash(fieldNode.visibleAnnotations).apply { addAll(classStringHashTypeSet) }
+            val intHashTypeSet = checkIntHash(fieldNode.visibleAnnotations)
+            val longHashTypeSet = checkLongHash(fieldNode.visibleAnnotations)
+            val stringHashTypeSet = checkStringHash(fieldNode.visibleAnnotations)
+
+            val isStatic = Modifier.isStatic(fieldNode.access)
+            val isPublic = Modifier.isPublic(fieldNode.access)
+            val hasAnnotation = intHashTypeSet.isNotEmpty() || longHashTypeSet.isNotEmpty() || stringHashTypeSet.isNotEmpty()
+            if (!needAddAnnotations && !hasAnnotation) {
+                return@forEach
+            }
+            if (needAddAnnotations && !hasAnnotation) {
+                if (prop.skipField
+                    || (!isStatic && prop.skipNonStaticField)
+                    || (!isPublic && prop.skipNonPublicField)) {
+                    return@forEach
+                }
+            }
+
+            intHashTypeSet.addAll(classIntHashTypeSet)
+            longHashTypeSet.addAll(classLongHashTypeSet)
+            stringHashTypeSet.addAll(classStringHashTypeSet)
 
             fieldNode.visibleAnnotations?.removeIf { it.desc.equals(Hash::class.toJvmType()) }
             val annotationVisitor = fieldNode.visitAnnotation(Hash::class.toJvmType(), true)
@@ -194,11 +231,37 @@ class HashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(project,
             val objNameAnns = methodNode.visibleAnnotations?.filter { it.desc.equals(HashObjectName::class.toJvmType()) }
             if (!objNameAnns.isNullOrEmpty() && objNameAnns.first().values.size == 2) {
                 objName = objNameAnns.first().values[1].toString()
+                if (prop.removeHashObjectNameAnnotation) {
+                    methodNode.visibleAnnotations.removeAll(objNameAnns)
+                }
             }
 
-            val intHashTypeSet = checkIntHash(methodNode.visibleAnnotations).apply { addAll(classIntHashTypeSet) }
-            val longHashTypeSet = checkLongHash(methodNode.visibleAnnotations).apply { addAll(classLongHashTypeSet) }
-            val stringHashTypeSet = checkStringHash(methodNode.visibleAnnotations).apply { addAll(classStringHashTypeSet) }
+            val intHashTypeSet = checkIntHash(methodNode.visibleAnnotations)
+            val longHashTypeSet = checkLongHash(methodNode.visibleAnnotations)
+            val stringHashTypeSet = checkStringHash(methodNode.visibleAnnotations)
+
+            val isStatic = Modifier.isStatic(methodNode.access)
+            val isPublic = Modifier.isPublic(methodNode.access)
+            val isConstructor = methodNode.name.equals("<init>")
+            val isStaticConstructor = methodNode.name.equals("<clinit>")
+            val hasAnnotation = intHashTypeSet.isNotEmpty() || longHashTypeSet.isNotEmpty() || stringHashTypeSet.isNotEmpty()
+            if (isStaticConstructor || (!needAddAnnotations && !hasAnnotation)) {
+                return@forEach
+            }
+
+            if (needAddAnnotations && !hasAnnotation) {
+                if (prop.skipMethod
+                    || (!isStatic && prop.skipNonStaticMethod)
+                    || (!isPublic && prop.skipNonPublicMethod)
+                    || (isConstructor && prop.skipConstructor)
+                ) {
+                    return@forEach
+                }
+            }
+
+            intHashTypeSet.addAll(classIntHashTypeSet)
+            longHashTypeSet.addAll(classLongHashTypeSet)
+            stringHashTypeSet.addAll(classStringHashTypeSet)
 
             methodNode.visibleAnnotations?.removeIf { it.desc.equals(Hash::class.toJvmType()) }
             val annotationVisitor = methodNode.visitAnnotation(Hash::class.toJvmType(), true)
