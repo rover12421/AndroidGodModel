@@ -19,4 +19,5 @@ enum class StringHashType {
     HashCode,
     Base64,
     MD5,
+    SHA1,
 }

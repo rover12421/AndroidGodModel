@@ -4,6 +4,8 @@ import com.rover12421.android.godmodel.base.GodHand
 import com.rover12421.android.godmodel.base.GodHandProp
 import com.rover12421.android.godmodel.base.util.toJvmType
 import com.rover12421.android.godmodel.hash.core.*
+import org.apache.commons.codec.binary.Base64
+import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
 import org.objectweb.asm.AnnotationVisitor
@@ -165,8 +167,9 @@ class HashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(project,
                 val value: String = when(hashType) {
                     StringHashType.Size -> objName.length.toString()
                     StringHashType.HashCode -> objName.hashCode().toString()
-                    StringHashType.MD5 -> "MD5($objName)"
-                    StringHashType.Base64 -> "Base64($objName)"
+                    StringHashType.Base64 -> Base64.encodeBase64String(objName.toByteArray())
+                    StringHashType.MD5 -> DigestUtils.md5Hex(objName)
+                    StringHashType.SHA1 -> DigestUtils.sha1Hex(objName)
                     else -> ""
                 }
                 annotationNode.visit("value", value)
