@@ -1,6 +1,6 @@
 package com.rover12421.godmodel.test.myapp
 
-import com.rover12421.android.godmodel.hash.core.*
+import com.rover12421.android.godmodel.hash.base.*
 
 @IntHash(IntHashType.Size, IntHashType.HashCode)
 @LongHash(LongHashType.HashCode)
@@ -43,7 +43,7 @@ class HashCheck {
 
     @Hash(intHash = [IntHashValue(IntHashType.Size, 1), IntHashValue(IntHashType.HashCode, 222)])
     private fun intHashValues() {
-        println("my is private 0")
+        println("my is private 01")
     }
 
     @Hash(intHash = [IntHashValue(IntHashType.Size, 1), IntHashValue(IntHashType.HashCode, 222)],

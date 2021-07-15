@@ -1,18 +1,29 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+def loadProperties(String sourceFileName, Project pj) {
+    def config = new Properties()
+    def propFile = new File(sourceFileName)
+    // System.err.println("Loading property file: " + propFile.absolutePath)
+    if (propFile.canRead()) {
+        config.load(new FileInputStream(propFile))
+        for (Map.Entry property in config) {
+//            System.out.println("setting ${property.key} : ${property.value}")
+            pj.ext[property.key] = property.value
+        }
+    }
+}
+
+loadProperties("$rootDir/local.properties", rootProject)
+
 buildscript {
-    ext.kotlin_version = "1.5.10"
+    ext.kotlin_version = "1.5.20"
+    ext.androidTools_version = "4.2.2"
     repositories {
         maven { url uri("$rootDir/repo") }
         google()
         mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.2.1"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-
-        classpath "com.rover12421.android.godmodel:base:0.1"
-        classpath "com.rover12421.android.godmodel:hashCore:0.1"
-        classpath "com.rover12421.android.godmodel:hashPlugin:0.1"
+        classpath "com.android.tools.build:gradle:${androidTools_version}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
     }
 }
 
@@ -21,6 +32,123 @@ allprojects {
         maven { url uri("$rootDir/repo") }
         google()
         mavenCentral()
+    }
+}
+
+subprojects {
+    if (project.name in ["base", "plugin", "godModel"]) {
+//        println ">>>>>>>>> ${project.name}"
+
+        def configFile = "${project.projectDir}/config.properties"
+        if (!file(configFile).exists()) {
+            println "please add config file : ${configFile}"
+            exit 0
+        }
+
+        loadProperties(configFile, project)
+//        println "version: ${project.ext.version}"
+//        println "groupId: ${project.ext.groupId}"
+//        println "artifactId: ${project.ext.artifactId}"
+
+        apply plugin: 'java-library'
+        apply plugin: 'kotlin'
+        java {
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
+        }
+        version = project.ext.version
+
+        jar {
+            exclude "**/*.kotlin_module"
+        }
+
+        apply plugin: 'signing'
+        signing {
+            required { gradle.taskGraph.hasTask('uploadArchives') }
+            sign configurations.archives
+        }
+
+        apply plugin: 'maven'
+        uploadArchives {
+            repositories.mavenDeployer {
+                repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+
+                configuration = configurations.archives
+
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                pom.artifactId = project.ext.artifactId
+                pom.version = project.ext.version
+                pom.groupId = project.ext.groupId
+
+                pom.project {
+                    name project.name
+                    description "Android Gradle Model / ${project.ext.groupId} : ${project.ext.artifactId}"
+                    url 'https://shaka.rover.plus'
+                    packaging 'jar'
+                    licenses {
+                        license {
+                            name 'MIT License'
+                            url 'https://opensource.org/licenses/mit-license.php'
+                            distribution 'repo'
+                        }
+                    }
+                    scm {
+                        url 'https://github.com/rover12421/AndroidGodModel/tree/master'
+                        connection 'scm:git:git://github.com/rover12421/AndroidGodModel.git'
+                        developerConnection 'scm:git:git@github.com:rover12421/AndroidGodModel.git'
+                    }
+                    developers {
+                        developer {
+                            id 'rover12421'
+                            name 'Rover12421'
+                            email 'rover12421@163.com'
+                        }
+                    }
+                }
+            }
+        }
+
+        apply plugin: 'maven-publish'
+        publishing {
+            repositories {
+                maven {
+                    url uri("$rootDir/repo")
+                }
+            }
+            publications {
+                publish(MavenPublication) {
+                    groupId project.ext.groupId
+                    artifactId project.ext.artifactId
+                    from components.java
+                }
+            }
+        }
+
+        if (project.name in ["plugin", "godModel"]) {
+            apply plugin: 'java-gradle-plugin'
+            gradlePlugin {
+                plugins {
+                    hashPlugin {
+                        id = "${project.ext.groupId}.${project.ext.artifactId}"
+                        implementationClass = "${project.ext.groupId}.${project.ext.artifactId}.PluginMain"
+                    }
+                }
+            }
+
+            dependencies {
+                compileOnly("com.android.tools.build:gradle:$androidTools_version")
+                if (project.name == "plugin"){
+                    compileOnly("com.rover12421.android.godmodel:core:0.1")
+                }
+            }
+        }
+
+        dependencies {
+            implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+        }
     }
 }
 

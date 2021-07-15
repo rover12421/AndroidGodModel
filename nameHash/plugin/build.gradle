@@ -1,0 +1,4 @@
+dependencies {
+    implementation("com.rover12421.android.godmodel.namehash:base:0.1")
+    implementation("commons-codec:commons-codec:1.15")
+}

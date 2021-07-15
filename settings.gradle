@@ -8,5 +8,6 @@ pluginManagement {
 rootProject.name = "AndroidGodModel"
 include ':godModel'
 include ':myapp'
-include ':hashCore'
-include ':hashPlugin'
+
+include ':hash:base', ':hash:plugin'
+include ':nameHash:base', ':nameHash:plugin'
