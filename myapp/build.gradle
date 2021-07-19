@@ -70,8 +70,8 @@ dependencies {
 }
 
 GodModel {
-    incremental = false
-    debug = true
+//    incremental = false
+//    debug = true
     godHands {
         [hash {
             type = com.rover12421.android.godmodel.hash.plugin.HashGodHand.class
