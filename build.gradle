@@ -62,6 +62,27 @@ subprojects {
             exclude "**/*.kotlin_module"
         }
 
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+            options.addStringOption('encoding', 'UTF-8')
+            options.addStringOption('charSet', 'UTF-8')
+        }
+
+        task javadocJar(type: Jar, dependsOn: javadoc) {
+            archiveClassifier = 'javadoc'
+            from javadoc.destinationDir
+        }
+
+        task sourcesJar(type: Jar, dependsOn: classes) {
+            archiveClassifier = 'sources'
+            from sourceSets.main.allSource
+        }
+
+        artifacts {
+            archives javadocJar
+            archives sourcesJar
+        }
+
         apply plugin: 'signing'
         signing {
             required { gradle.taskGraph.hasTask('uploadArchives') }
