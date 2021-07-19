@@ -1,6 +1,7 @@
 package com.rover12421.android.godmodel.core
 
 import com.android.build.api.transform.*
+import com.android.build.gradle.AppExtension
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.android.utils.FileUtils
 import com.rover12421.android.godmodel.core.util.ClassLoaderHelper
@@ -56,7 +57,11 @@ open class GodModelTransform(val project: Project) : Transform() {
     }
 
     override fun getScopes(): MutableSet<in QualifiedContent.Scope> {
-        return TransformManager.SCOPE_FULL_PROJECT
+        if (project.extensions.findByType(AppExtension::class.java) != null) {
+            return TransformManager.SCOPE_FULL_PROJECT
+        } else {
+            return TransformManager.PROJECT_ONLY
+        }
     }
 
     override fun isIncremental(): Boolean {

@@ -7,9 +7,9 @@ import org.gradle.api.Project
 
 class PluginMain : Plugin<Project> {
     override fun apply(project: Project) {
-        val aandroidExtension = project.extensions.findByType(AppExtension::class.java)
+        val androidExtension = project.extensions.findByType(AppExtension::class.java)
             ?: project.extensions.findByType(LibraryExtension::class.java) ?: return
-        aandroidExtension.registerTransform(GodModelTransform(project))
+        androidExtension.registerTransform(GodModelTransform(project))
         println(">>>>>>>> godmodel.core PluginMain")
     }
 }
