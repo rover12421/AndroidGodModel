@@ -8,5 +8,5 @@ package com.rover12421.android.godmodel.namehash.base
 annotation class HashValue(
     val len: Int,
     val hashcode: Int,
-    val hash: Long,
+    val hash: Int,
 )

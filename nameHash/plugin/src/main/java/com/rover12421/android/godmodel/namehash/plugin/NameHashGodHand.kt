@@ -55,7 +55,7 @@ class NameHashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(proj
             an.visit("len", name.length)
             an.visit("hashcode", name.hashCode())
             val bytes = name.toByteArray()
-            an.visit("hash", MurmurHash3.hash32x86(bytes, 0, bytes.size, 104729))
+            an.visit("hash", MurmurHash3.hash32x86(bytes, 0, bytes.size, MurmurHash3.DEFAULT_SEED))
             an
         }
         av.visit("vaules", values)
