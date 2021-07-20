@@ -63,6 +63,7 @@ class NameHashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(proj
 
     override fun handClassNode(cn: ClassNode) {
         findNameHashAnnoatation(cn.visibleAnnotations)?.let { hashNameNode ->
+            cn.visibleAnnotations.remove(hashNameNode)
             val av = cn.visitAnnotation(Hash::class.toJvmType(), true)
             handNameHashAnnoatation(cn.visibleAnnotations, hashNameNode, av, AsmUtil.getSimpleClassName(cn.name))
         }
@@ -70,14 +71,14 @@ class NameHashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(proj
         cn.fields.forEach { fieldNode ->
             findNameHashAnnoatation(fieldNode.visibleAnnotations)?.let { hashNameNode ->
                 val av = fieldNode.visitAnnotation(Hash::class.toJvmType(), true)
-                handNameHashAnnoatation(cn.visibleAnnotations, hashNameNode, av, AsmUtil.getSimpleClassName(fieldNode.name))
+                handNameHashAnnoatation(fieldNode.visibleAnnotations, hashNameNode, av, AsmUtil.getSimpleClassName(fieldNode.name))
             }
         }
 
         cn.methods.forEach { methodNode ->
             findNameHashAnnoatation(methodNode.visibleAnnotations)?.let { hashNameNode ->
                 val av = methodNode.visitAnnotation(Hash::class.toJvmType(), true)
-                handNameHashAnnoatation(cn.visibleAnnotations, hashNameNode, av, AsmUtil.getSimpleClassName(methodNode.name))
+                handNameHashAnnoatation(methodNode.visibleAnnotations, hashNameNode, av, AsmUtil.getSimpleClassName(methodNode.name))
             }
         }
     }
