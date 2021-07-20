@@ -1,0 +1,63 @@
+buildscript {
+    repositories {
+        maven { url uri("$rootDir/repo") }
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.rover12421.android.godmodel:core:0.5"
+        classpath "com.rover12421.android.godmodel.hash:plugin:0.1"
+        classpath "com.rover12421.android.godmodel.namehash:plugin:0.1"
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'com.rover12421.android.godmodel.core'
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.core:core-ktx:1.5.0'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+
+    implementation 'com.rover12421.android.godmodel.hash:base:0.1'
+    implementation 'com.rover12421.android.godmodel.namehash:base:0.1'
+}
+
+GodModel {
+    incremental = false
+    debug = true
+    godHands {
+        [hash {
+            type = com.rover12421.android.godmodel.hash.plugin.HashGodHand.class
+            filterRegex = /com\.rover12421\..+/
+            property["skipMethod"] = false
+            property["skipField"] = false
+        },
+         namehash{
+            type = com.rover12421.android.godmodel.namehash.plugin.NameHashGodHand.class
+        }]
+    }
+}

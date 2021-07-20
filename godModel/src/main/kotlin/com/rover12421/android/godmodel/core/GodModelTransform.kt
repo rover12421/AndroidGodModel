@@ -27,14 +27,14 @@ open class GodModelTransform(val project: Project) : Transform() {
                 try {
                     block.invoke()
                 } catch (e: Throwable) {
-                    logger.log(LogLevel.WARN, "GodModelTransform", e)
+                    logger.warn( "GodModelTransform", e)
                 }
             })
         } else {
             try {
                 block.invoke()
             } catch (e: Throwable) {
-                logger.log(LogLevel.WARN, "GodModelTransform", e)
+                logger.warn( "GodModelTransform", e)
             }
         }
     }
@@ -77,7 +77,7 @@ open class GodModelTransform(val project: Project) : Transform() {
     }
 
     var godHand: GodHand = GodHand(project, GodHandProp("GodHand"))
-    val isDebug : Boolean = godModelExtension.debug
+    val isDebug : Boolean by lazy { godModelExtension.debug }
 
     override fun transform(transformInvocation: TransformInvocation) {
         val outputProvider = transformInvocation.outputProvider
@@ -88,7 +88,7 @@ open class GodModelTransform(val project: Project) : Transform() {
         val runVariant = getRunVariant()
 
         val contextVariantName = context.variantName.toLowerCase(Locale.getDefault())
-        logger.warn("[GodModel] isIncremental($isIncremental), runVariant($runVariant), contextVariantName($contextVariantName)");
+        logger.warn("[GodModel] isIncremental($isIncremental), runVariant($runVariant), contextVariantName($contextVariantName) isDebug(${isDebug})")
 
         var skip = false
         if (runVariant == RunVariant.NEVER
@@ -96,7 +96,6 @@ open class GodModelTransform(val project: Project) : Transform() {
         ) {
             skip = true
         }
-
 
         val inputs = transformInvocation.inputs
         val classLoader = ClassLoaderHelper.getClassLoader(project, inputs, transformInvocation.referencedInputs)
@@ -109,7 +108,7 @@ open class GodModelTransform(val project: Project) : Transform() {
             } catch (e: Throwable) {
                 prop.type.newInstance()
             }
-            logger.log(LogLevel.WARN, "find hand (${prop.name}) : $hand")
+            logger.warn( "[GodModel] find hand (${prop.name}) : $hand")
             hands.add(hand)
         }
 
@@ -131,54 +130,72 @@ open class GodModelTransform(val project: Project) : Transform() {
             }
         }
 
+        if (isDebug) {
+            logger.warn("[GodModel] inputs.size: ${inputs.size}")
+        }
         inputs.forEach { input ->
             input.jarInputs.forEach { jarInput ->
                 val dest = outputProvider.getContentLocation(
                     jarInput.file.absolutePath, jarInput.contentTypes, jarInput.scopes, Format.JAR
                 )
 
-                if (isIncremental && !skip && !godModelExtension.ignoreJar) {
-                    when(jarInput.status) {
-                        Status.NOTCHANGED -> {}
-                        Status.ADDED, Status.CHANGED -> {
-                            transformJar(jarInput.file, dest, skip)
-                        }
-                        Status.REMOVED -> {
-                            FileUtils.deleteRecursivelyIfExists(dest)
-                        }
-                        else -> {}
-                    }
-                } else {
-                    transformJar(jarInput.file, dest, skip)
-                }
+//                if (!skip && !godModelExtension.ignoreJar) {
+//                    when(jarInput.status) {
+//                        Status.NOTCHANGED -> {}
+//                        Status.ADDED, Status.CHANGED -> {
+//                            transformJar(jarInput.file, dest, skip)
+//                        }
+//                        Status.REMOVED -> {
+//                            FileUtils.deleteRecursivelyIfExists(dest)
+//                        }
+//                        else -> {}
+//                    }
+//                } else {
+//                    transformJar(jarInput.file, dest, skip)
+//                }
+                transformJar(jarInput.file, dest, skip)
+            }
+
+            if (isDebug) {
+                logger.warn("[GodModel] input.directoryInputs.size: ${input.directoryInputs.size}")
             }
 
             input.directoryInputs.forEach { directoryInput ->
                 val dest = outputProvider.getContentLocation(
                     directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY
                 )
-                FileUtils.mkdirs(dest)
-                if (isIncremental && !skip) {
-                    val srcDirPath = Paths.get(directoryInput.file.absolutePath)
-                    val destDirPath = Paths.get(dest.absolutePath)
-                    directoryInput.changedFiles.forEach { (inputFile, status) ->
-                        val inPath = Paths.get(inputFile.absolutePath)
-                        val desFile = destDirPath.resolve(srcDirPath.relativize(inPath)).toFile()
-                        when(status) {
-                            Status.NOTCHANGED -> {}
-                            Status.ADDED, Status.CHANGED -> {
-                                FileUtils.mkdirs(desFile.parentFile)
-                                transformFile(inputFile, desFile, skip)
-                            }
-                            Status.REMOVED -> {
-                                FileUtils.deleteRecursivelyIfExists(dest)
-                            }
-                            else -> {}
-                        }
-                    }
-                } else {
-                    transformDir(directoryInput.file, dest, skip)
+                if (isDebug) {
+                    logger.warn("[GodModel] directoryInput: dest(${dest}) isIncremental($isIncremental) skip($skip)")
                 }
+                FileUtils.mkdirs(dest)
+//                if (!skip) {
+//                    val srcDirPath = Paths.get(directoryInput.file.absolutePath)
+//                    val destDirPath = Paths.get(dest.absolutePath)
+//                    if (isDebug) {
+//                        logger.warn("[GodModel] directoryInput: directoryInput.changedFiles.size : ${directoryInput.changedFiles.size}")
+//                    }
+//                    directoryInput.changedFiles.forEach { (inputFile, status) ->
+//                        val inPath = Paths.get(inputFile.absolutePath)
+//                        val desFile = destDirPath.resolve(srcDirPath.relativize(inPath)).toFile()
+//                        if (isDebug) {
+//                            logger.warn("[GodModel] directoryInput: status(${status}) inPath($inPath) desFile($desFile)")
+//                        }
+//                        when(status) {
+//                            Status.NOTCHANGED -> {}
+//                            Status.ADDED, Status.CHANGED -> {
+//                                FileUtils.mkdirs(desFile.parentFile)
+//                                transformFile(inputFile, desFile, skip)
+//                            }
+//                            Status.REMOVED -> {
+//                                FileUtils.deleteRecursivelyIfExists(dest)
+//                            }
+//                            else -> {}
+//                        }
+//                    }
+//                } else {
+//                    transformDir(directoryInput.file, dest, skip)
+//                }
+                transformDir(directoryInput.file, dest, skip)
             }
         }
 
@@ -199,7 +216,7 @@ open class GodModelTransform(val project: Project) : Transform() {
     private fun transformFile(from: File, to: File, skip: Boolean) {
         addTask {
             if (isDebug) {
-                logger.log(LogLevel.DEBUG, "transformFile $from >> $skip >> size: ${godHand.godHands.size}")
+                logger.warn("transformFile $from -> $to >> $skip >> size: ${godHand.godHands.size}")
             }
 
             if (skip || !from.name.endsWith(".class")) {
@@ -214,7 +231,7 @@ open class GodModelTransform(val project: Project) : Transform() {
     private fun transformDir(from: File, to: File, skip: Boolean) {
         addTask {
             if (isDebug) {
-                logger.log(LogLevel.DEBUG, "transformDir $from >> $skip")
+                logger.warn("transformDir $from -> $to >> $skip")
             }
             if (skip) {
                 to.mkdirs()

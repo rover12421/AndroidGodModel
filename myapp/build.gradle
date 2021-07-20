@@ -13,7 +13,7 @@ buildscript {
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'com.rover12421.android.godmodel.core'
+//apply plugin: 'com.rover12421.android.godmodel.core'
 
 android {
     compileSdkVersion 30
@@ -59,6 +59,8 @@ android {
 }
 
 dependencies {
+    implementation project(':mylib')
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.5.0'
     implementation 'androidx.appcompat:appcompat:1.3.0'
@@ -69,18 +71,18 @@ dependencies {
     implementation 'com.rover12421.android.godmodel.namehash:base:0.1'
 }
 
-GodModel {
-//    incremental = false
-//    debug = true
-    godHands {
-        [hash {
-            type = com.rover12421.android.godmodel.hash.plugin.HashGodHand.class
-            filterRegex = /com\.rover12421\..+/
-            property["skipMethod"] = false
-            property["skipField"] = false
-        },
-         namehash{
-            type = com.rover12421.android.godmodel.namehash.plugin.NameHashGodHand.class
-        }]
-    }
-}
+//GodModel {
+////    incremental = false
+////    debug = true
+//    godHands {
+//        [hash {
+//            type = com.rover12421.android.godmodel.hash.plugin.HashGodHand.class
+//            filterRegex = /com\.rover12421\..+/
+//            property["skipMethod"] = false
+//            property["skipField"] = false
+//        },
+//         namehash{
+//            type = com.rover12421.android.godmodel.namehash.plugin.NameHashGodHand.class
+//        }]
+//    }
+//}

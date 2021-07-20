@@ -61,16 +61,16 @@ open class GodHand(project: Project, godHandProp: GodHandProp) : GodHandBase(pro
         }
 
         if (godHandProp.debug) {
-            logger.log(LogLevel.DEBUG, "isHandClass >>> : $className | godHands.size: ${godHands.size}")
+            logger.warn( "isHandClass >>> : $className | godHands.size: ${godHands.size}")
         }
         if (className.startsWith("com.rover12421.android.godmodel")) {
             return false
         }
         if (godHands.firstOrNull {
-                logger.log(LogLevel.WARN, "[${it.godHandProp.name}] isHandClass : $className >>> ${it.isHandClass(className)}")
+                logger.warn( "[${it.godHandProp.name}] isHandClass : $className >>> ${it.isHandClass(className)}")
                 it.isHandClass(className)
         } != null) {
-            logger.log(LogLevel.WARN, "isHandClass : $className is true")
+            logger.warn( "isHandClass : $className is true")
             return true
         }
         return false
@@ -78,7 +78,7 @@ open class GodHand(project: Project, godHandProp: GodHandProp) : GodHandBase(pro
 
     private fun checkHand(hand: GodHandBase, className: String, isJar: Boolean): Boolean {
         if (godHandProp.debug) {
-            logger.log(LogLevel.DEBUG, "checkHand [${hand.godHandProp.name}] >>> : $className, isJar: $isJar, hand.isHandJar(): ${hand.isHandJar()}, size: ${godHands.size}")
+            logger.warn( "checkHand [${hand.godHandProp.name}] >>> : $className, isJar: $isJar, hand.isHandJar(): ${hand.isHandJar()}, size: ${godHands.size}")
         }
         if (isJar && !hand.isHandJar()) {
             return false
@@ -111,7 +111,7 @@ open class GodHand(project: Project, godHandProp: GodHandProp) : GodHandBase(pro
     private fun handClass(classBytes: ByteArray, isJar: Boolean): ByteArray {
         val cr = ClassReader(classBytes)
         if (godHandProp.debug) {
-            logger.log(LogLevel.DEBUG, "[handClass] ${cr.className} >>1 size : ${godHands.size}")
+            logger.warn( "[handClass] ${cr.className} >>1 size : ${godHands.size}")
         }
         val className: String = cr.className.replace("/", ".")
         val cw = GodClassWriter(classLoader, ClassWriter.COMPUTE_MAXS)

@@ -145,7 +145,7 @@ class HashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(project,
                 val annotationNode = AnnotationNode(IntHashValue::class.toJvmType())
                 annotationNode.visitEnum("type", IntHashType::class.toJvmType(), hashType.name)
                 val bytes = objName.toByteArray()
-//                logger.log(LogLevel.WARN, "[HashGodHand] addIntHashAnnotations: $hashType ")
+//                logger.warn( "[HashGodHand] addIntHashAnnotations: $hashType ")
                 val value: Int = when(hashType) {
                     IntHashType.Size -> objName.length
                     IntHashType.HashCode -> objName.hashCode()
@@ -165,7 +165,7 @@ class HashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(project,
             val values = hashTypeSet.map { hashType ->
                 val annotationNode = AnnotationNode(LongHashValue::class.toJvmType())
                 annotationNode.visitEnum("type", LongHashType::class.toJvmType(), hashType.name)
-//                logger.log(LogLevel.WARN, "[HashGodHand] addLongHashAnnotations: $hashType ")
+//                logger.warn( "[HashGodHand] addLongHashAnnotations: $hashType ")
                 val bytes = objName.toByteArray()
                 val value: Long = when(hashType) {
                     LongHashType.Size -> objName.length.toLong()
@@ -187,7 +187,7 @@ class HashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(project,
             val values = hashTypeSet.map { hashType ->
                 val annotationNode = AnnotationNode(StringHashValue::class.toJvmType())
                 annotationNode.visitEnum("type", StringHashType::class.toJvmType(), hashType.name)
-//                logger.log(LogLevel.WARN, "[HashGodHand] addStringHashAnnotations: $hashType ")
+//                logger.warn( "[HashGodHand] addStringHashAnnotations: $hashType ")
                 val value: String = when(hashType) {
                     StringHashType.Size -> objName.length.toString()
                     StringHashType.HashCode -> objName.hashCode().toString()
@@ -204,7 +204,7 @@ class HashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(project,
     }
 
     override fun handClassNode(cn: ClassNode) {
-        logger.log(LogLevel.WARN, "[HashGodHand] class: ${cn.name} ")
+        logger.warn( "[HashGodHand] class: ${cn.name} ")
 
         /**
          * 获取类定义的hash类型

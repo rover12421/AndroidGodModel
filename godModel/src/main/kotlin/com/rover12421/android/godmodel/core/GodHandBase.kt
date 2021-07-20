@@ -21,7 +21,7 @@ open class GodHandBase(val project: Project, val godHandProp: GodHandProp) {
     open fun isHandClass(className: String): Boolean {
         val ret = godHandProp.filterRegex.matches(className)
         if (godHandProp.debug) {
-            logger.log(LogLevel.DEBUG, "[${godHandProp.name}] : ${godHandProp.filterRegex} matches $className = $ret")
+            logger.warn( "[${godHandProp.name}] : ${godHandProp.filterRegex} matches $className = $ret")
         }
         return ret
     }

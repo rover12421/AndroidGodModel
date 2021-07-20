@@ -7,7 +7,7 @@ pluginManagement {
 
 rootProject.name = "AndroidGodModel"
 include ':godModel'
-include ':myapp'
+include ':myapp', ':mylib'
 
 include ':hash:base', ':hash:plugin'
 include ':nameHash:base', ':nameHash:plugin'
