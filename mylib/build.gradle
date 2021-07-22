@@ -7,7 +7,7 @@ buildscript {
     dependencies {
         classpath "com.rover12421.android.godmodel:core:0.5"
         classpath "com.rover12421.android.godmodel.hash:plugin:0.1"
-        classpath "com.rover12421.android.godmodel.namehash:plugin:0.1"
+        classpath "com.rover12421.android.godmodel.namehash:plugin:0.3"
     }
 }
 
@@ -43,7 +43,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     implementation 'com.rover12421.android.godmodel.hash:base:0.1'
-    implementation 'com.rover12421.android.godmodel.namehash:base:0.1'
+    implementation 'com.rover12421.android.godmodel.namehash:base:0.2'
 }
 
 GodModel {

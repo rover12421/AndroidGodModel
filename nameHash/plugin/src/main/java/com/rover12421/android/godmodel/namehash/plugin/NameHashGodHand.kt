@@ -37,15 +37,8 @@ class NameHashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(proj
         visibleAnnotations.remove(hashNameNode)
         val annotationValues = hashNameNode.values
         if (annotationValues != null && annotationValues.size == 2) {
-            val list = annotationValues[1] as ArrayList<*>
-            if (list.size > 0) {
-                list.forEach { names ->
-                    if (names is Array<*>) {
-                        names as Array<String>
-                        hashNames.addAll(names)
-                    }
-                }
-            }
+            val list = annotationValues[1] as ArrayList<String>
+            hashNames.addAll(list)
         }
         if (hashNames.isEmpty()) {
             hashNames.add(objName)
@@ -71,14 +64,14 @@ class NameHashGodHand(project: Project, godHandProp: GodHandProp) : GodHand(proj
         cn.fields.forEach { fieldNode ->
             findNameHashAnnoatation(fieldNode.visibleAnnotations)?.let { hashNameNode ->
                 val av = fieldNode.visitAnnotation(Hash::class.toJvmType(), true)
-                handNameHashAnnoatation(fieldNode.visibleAnnotations, hashNameNode, av, AsmUtil.getSimpleClassName(fieldNode.name))
+                handNameHashAnnoatation(fieldNode.visibleAnnotations, hashNameNode, av, fieldNode.name)
             }
         }
 
         cn.methods.forEach { methodNode ->
             findNameHashAnnoatation(methodNode.visibleAnnotations)?.let { hashNameNode ->
                 val av = methodNode.visitAnnotation(Hash::class.toJvmType(), true)
-                handNameHashAnnoatation(methodNode.visibleAnnotations, hashNameNode, av, AsmUtil.getSimpleClassName(methodNode.name))
+                handNameHashAnnoatation(methodNode.visibleAnnotations, hashNameNode, av, methodNode.name)
             }
         }
     }
