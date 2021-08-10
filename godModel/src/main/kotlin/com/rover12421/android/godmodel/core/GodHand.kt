@@ -1,9 +1,7 @@
 package com.rover12421.android.godmodel.core
 
-import com.android.utils.FileUtils
 import com.rover12421.android.godmodel.core.asm.GodClassWriter
 import org.gradle.api.Project
-import org.gradle.api.logging.LogLevel
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.ClassWriter
@@ -24,7 +22,7 @@ open class GodHand(project: Project, godHandProp: GodHandProp) : GodHandBase(pro
 
     fun handJar(inJar: File, outJar: File) {
         if (!isHandJar() && godHands.firstOrNull { it.isHandJar() } == null) {
-            FileUtils.copyFile(inJar, outJar)
+            inJar.copyTo(outJar, true)
             return
         }
 
@@ -109,27 +107,30 @@ open class GodHand(project: Project, godHandProp: GodHandProp) : GodHandBase(pro
     }
 
     private fun handClass(classBytes: ByteArray, isJar: Boolean): ByteArray {
-        val cr = ClassReader(classBytes)
+        var cr = ClassReader(classBytes)
         if (godHandProp.debug) {
             logger.warn( "[handClass] ${cr.className} >>1 size : ${godHands.size}")
         }
         val className: String = cr.className.replace("/", ".")
-        val cw = GodClassWriter(classLoader, ClassWriter.COMPUTE_MAXS)
-        val cv = wrapperClassWriter(cw, className, isJar)
+        var cw = GodClassWriter(classLoader, ClassWriter.COMPUTE_MAXS)
+
         if (isHandClassNode(className, isJar)) {
             val cn = ClassNode()
             cr.accept(cn, ClassReader.EXPAND_FRAMES)
             handClassNode(cn, className, isJar)
-            cn.accept(cv)
-        } else {
-            cr.accept(cv, ClassReader.EXPAND_FRAMES)
+            cn.accept(cw)
+            val modifyBytes = cw.toByteArray()
+            cr = ClassReader(modifyBytes)
+            cw = GodClassWriter(classLoader, ClassWriter.COMPUTE_MAXS)
         }
 
+        val cv = wrapperClassWriter(cw, className, isJar)
+        cr.accept(cv, ClassReader.EXPAND_FRAMES)
         return cw.toByteArray()
     }
 
     fun handClassFile(from: File, to: File) {
-        FileUtils.mkdirs(to.parentFile)
+        to.parentFile.mkdirs()
         to.writeBytes(
             handClass(
                 from.readBytes(), false

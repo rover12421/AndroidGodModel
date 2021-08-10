@@ -11,7 +11,7 @@ object LibHashObject {
     const val long3 = 333L
 
     internal val i4 = 444
-    private val s5 = "5555"
+    private val s5 = "5555123456"
 }
 
 @LongHash(LongHashType.HashCode)
@@ -20,7 +20,7 @@ class LibHashCheck {
         const val s1 = "ssss1111345"
 
         @Hash()
-        const val s2 = "ssss1111111234"
+        const val s2 = "23"
     }
 
     val i1 = 100
@@ -32,7 +32,7 @@ class LibHashCheck {
     }
 
     fun publicFun222() {
-        println("my is public222 - 0123")
+        println("my is public222 - 01234")
     }
 
     @StringHash

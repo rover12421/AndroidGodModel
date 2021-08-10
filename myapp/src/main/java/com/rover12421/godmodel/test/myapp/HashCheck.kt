@@ -17,7 +17,7 @@ object HashObject {
 @LongHash(LongHashType.HashCode)
 class HashCheck {
     companion object {
-        const val s1 = "ssss1111345"
+        const val s1 = "ssss11113456"
 
         @Hash()
         const val s2 = "ssss1111111"

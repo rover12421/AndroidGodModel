@@ -1,13 +1,14 @@
 buildscript {
     repositories {
-        maven { url uri("$rootDir/repo") }
+        mavenLocal()
         google()
         mavenCentral()
     }
     dependencies {
-        classpath "com.rover12421.android.godmodel:core:0.5"
-        classpath "com.rover12421.android.godmodel.hash:plugin:0.1"
-        classpath "com.rover12421.android.godmodel.namehash:plugin:0.3"
+        classpath "com.rover12421.android.godmodel:core:${godModelCoreVer}"
+        classpath "com.rover12421.android.godmodel.hash:plugin:${godModelHashPluginVer}"
+        classpath "com.rover12421.android.godmodel.namehash:plugin:${godModelNameHashBaseVer}"
+        classpath "com.rover12421.android.godmodel.removeAnnotation:plugin:${godModelRemoveAnnotationPluginVer}"
     }
 }
 
@@ -16,12 +17,10 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.rover12421.android.godmodel.core'
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.3"
-
+    compileSdkVersion 31
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
     }
@@ -42,22 +41,29 @@ dependencies {
     implementation 'com.google.android.material:material:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
-    implementation 'com.rover12421.android.godmodel.hash:base:0.1'
-    implementation 'com.rover12421.android.godmodel.namehash:base:0.2'
+    implementation "com.rover12421.android.godmodel.hash:base:${godModelHashBaseVer}"
+    implementation "com.rover12421.android.godmodel.namehash:base:${godModelNameHashBaseVer}"
 }
 
 GodModel {
     incremental = false
     debug = true
     godHands {
-        [hash {
-            type = com.rover12421.android.godmodel.hash.plugin.HashGodHand.class
-            filterRegex = /com\.rover12421\..+/
-            property["skipMethod"] = false
-            property["skipField"] = false
-        },
-         namehash{
-            type = com.rover12421.android.godmodel.namehash.plugin.NameHashGodHand.class
-        }]
+        [
+                hash {
+                    type = com.rover12421.android.godmodel.hash.plugin.HashGodHand.class
+                    filterRegex = /com\.rover12421\..+/
+                    property["skipMethod"] = false
+                    property["skipField"] = false
+                },
+                namehash {
+                    type = com.rover12421.android.godmodel.namehash.plugin.NameHashGodHand.class
+                },
+                removeAnnotation {
+                    type = com.rover12421.android.godmodel.removeAnnotation.plugin.RemoveAnnotationGodHand.class
+                    filterRegex = /com\.rover12421\.godmodel\.test\..+/
+                    property["remove"] = ["kotlin.Metadata", "kotlin.coroutines.jvm.internal.DebugMetadata"]
+                }
+        ]
     }
 }

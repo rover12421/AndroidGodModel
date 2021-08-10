@@ -1,19 +1,22 @@
 package com.rover12421.android.godmodel.core
 
-import com.android.build.api.transform.*
+import com.android.build.api.transform.Format
+import com.android.build.api.transform.QualifiedContent
+import com.android.build.api.transform.Transform
+import com.android.build.api.transform.TransformInvocation
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.internal.pipeline.TransformManager
-import com.android.utils.FileUtils
 import com.rover12421.android.godmodel.core.util.ClassLoaderHelper
 import com.rover12421.android.godmodel.core.util.ProjectUtil
 import kotlinx.coroutines.*
 import org.gradle.api.Project
-import org.gradle.api.logging.LogLevel
 import org.gradle.api.logging.Logger
 import java.io.File
-import java.nio.file.Paths
+import java.nio.file.*
+import java.nio.file.attribute.BasicFileAttributes
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
+
 
 open class GodModelTransform(val project: Project) : Transform() {
     private val logger: Logger = project.logger
@@ -167,7 +170,7 @@ open class GodModelTransform(val project: Project) : Transform() {
                 if (isDebug) {
                     logger.warn("[GodModel] directoryInput: dest(${dest}) isIncremental($isIncremental) skip($skip)")
                 }
-                FileUtils.mkdirs(dest)
+                dest.mkdirs()
 //                if (!skip) {
 //                    val srcDirPath = Paths.get(directoryInput.file.absolutePath)
 //                    val destDirPath = Paths.get(dest.absolutePath)
@@ -206,7 +209,7 @@ open class GodModelTransform(val project: Project) : Transform() {
         addTask {
             if (skip) {
                 destJar.parentFile.mkdirs()
-                FileUtils.copyFile(srcJar, destJar)
+                srcJar.copyTo(destJar, true)
             } else {
                 godHand.handJar(srcJar, destJar)
             }
@@ -221,7 +224,7 @@ open class GodModelTransform(val project: Project) : Transform() {
 
             if (skip || !from.name.endsWith(".class")) {
                 to.parentFile.mkdirs()
-                FileUtils.copyFile(from, to)
+                from.copyTo(to, true)
             } else {
                 godHand.handClassFile(from, to)
             }
@@ -235,16 +238,22 @@ open class GodModelTransform(val project: Project) : Transform() {
             }
             if (skip) {
                 to.mkdirs()
-                FileUtils.copyDirectory(from, to)
+                from.copyRecursively(to, true)
             } else {
                 val fromDirPath = Paths.get(from.absolutePath)
                 val toDirPath = Paths.get(to.absolutePath)
-                FileUtils.getAllFiles(from).forEach { fromFile ->
-                    val fromPath = Paths.get(fromFile.absolutePath)
-                    val desFile = toDirPath.resolve(fromDirPath.relativize(fromPath)).toFile()
-                    transformFile(fromFile, desFile, skip)
-                }
+                Files.walkFileTree(from.toPath(), object : SimpleFileVisitor<Path>() {
+                    override fun visitFile(
+                        file: Path,
+                        attrs: BasicFileAttributes?
+                    ): FileVisitResult {
+                        val desFile = toDirPath.resolve(fromDirPath.relativize(file)).toFile()
+                        transformFile(file.toFile(), desFile, skip)
+                        return FileVisitResult.CONTINUE
+                    }
+                })
             }
         }
     }
+
 }

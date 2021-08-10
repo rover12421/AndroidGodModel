@@ -14,10 +14,10 @@ def loadProperties(String sourceFileName, Project pj) {
 loadProperties("$rootDir/local.properties", rootProject)
 
 buildscript {
-    ext.kotlin_version = "1.5.20"
-    ext.androidTools_version = "4.2.2"
+    ext.kotlin_version = "1.5.21"
+    ext.androidTools_version = "7.0.0"
     repositories {
-        maven { url uri("$rootDir/repo") }
+        mavenLocal()
         google()
         mavenCentral()
     }
@@ -29,7 +29,7 @@ buildscript {
 
 allprojects {
     repositories {
-        maven { url uri("$rootDir/repo") }
+        mavenLocal()
         google()
         mavenCentral()
     }
@@ -46,9 +46,10 @@ subprojects {
         }
 
         loadProperties(configFile, project)
-//        println "version: ${project.ext.version}"
-//        println "groupId: ${project.ext.groupId}"
-//        println "artifactId: ${project.ext.artifactId}"
+//        println ">>>>>>>> project ${project.name}  versionName : ${project.ext["versionName"]}"
+        def ver = project.property(project.ext["versionName"])
+        project.ext["version"] = ver
+//        println ">>>>>>>> project ${project.name} version is $ver"
 
         apply plugin: 'java-library'
         apply plugin: 'kotlin'
@@ -62,109 +63,95 @@ subprojects {
             exclude "**/*.kotlin_module"
         }
 
-        tasks.withType(Javadoc) {
-            options.addStringOption('Xdoclint:none', '-quiet')
-            options.addStringOption('encoding', 'UTF-8')
-            options.addStringOption('charSet', 'UTF-8')
+        task sourcesJar(type: Jar) {
+            archiveClassifier = 'sources'
+            from sourceSets.main.allJava
         }
 
-        task javadocJar(type: Jar, dependsOn: javadoc) {
+        task javadocJar(type: Jar) {
             archiveClassifier = 'javadoc'
             from javadoc.destinationDir
-        }
-
-        task sourcesJar(type: Jar, dependsOn: classes) {
-            archiveClassifier = 'sources'
-            from sourceSets.main.allSource
-        }
-
-        artifacts {
-            archives javadocJar
-            archives sourcesJar
-        }
-
-        apply plugin: 'signing'
-        signing {
-            required { gradle.taskGraph.hasTask('uploadArchives') }
-            sign configurations.archives
-        }
-
-        apply plugin: 'maven'
-        uploadArchives {
-            repositories.mavenDeployer {
-                repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
-                    authentication(userName: sonatypeUsername, password: sonatypePassword)
-                }
-
-                configuration = configurations.archives
-
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-                pom.artifactId = project.ext.artifactId
-                pom.version = project.ext.version
-                pom.groupId = project.ext.groupId
-
-                pom.project {
-                    name project.name
-                    description "Android Gradle Model / ${project.ext.groupId} : ${project.ext.artifactId}"
-                    url 'https://shaka.rover.plus'
-                    packaging 'jar'
-                    licenses {
-                        license {
-                            name 'MIT License'
-                            url 'https://opensource.org/licenses/mit-license.php'
-                            distribution 'repo'
-                        }
-                    }
-                    scm {
-                        url 'https://github.com/rover12421/AndroidGodModel/tree/master'
-                        connection 'scm:git:git://github.com/rover12421/AndroidGodModel.git'
-                        developerConnection 'scm:git:git@github.com:rover12421/AndroidGodModel.git'
-                    }
-                    developers {
-                        developer {
-                            id 'rover12421'
-                            name 'Rover12421'
-                            email 'rover12421@163.com'
-                        }
-                    }
-                }
-            }
-        }
-
-        apply plugin: 'maven-publish'
-        publishing {
-            repositories {
-                maven {
-                    url uri("$rootDir/repo")
-                }
-            }
-            publications {
-                publish(MavenPublication) {
-                    groupId project.ext.groupId
-                    artifactId project.ext.artifactId
-                    from components.java
-                }
-            }
         }
 
         if (project.name in ["plugin", "godModel"]) {
             apply plugin: 'java-gradle-plugin'
             gradlePlugin {
+                automatedPublishing = false
                 plugins {
-                    hashPlugin {
-                        id = "${project.ext.groupId}.${project.ext.artifactId}"
+                    customPlugin {
+                        id = "${project.ext.pluginId}"
                         implementationClass = "${project.ext.groupId}.${project.ext.artifactId}.PluginMain"
                     }
                 }
             }
 
             dependencies {
-                compileOnly("com.android.tools.build:gradle:$androidTools_version")
+                compileOnly "com.android.tools.build:gradle:$androidTools_version"
                 if (project.name == "plugin"){
-                    compileOnly("com.rover12421.android.godmodel:core:0.1")
+                    compileOnly "com.rover12421.android.godmodel:core:${godModelCoreVer}"
+                }
+
+                implementation "org.ow2.asm:asm:9.2"
+                implementation "org.ow2.asm:asm-util:9.2"
+            }
+        }
+
+        apply plugin: 'maven-publish'
+        publishing {
+            publications {
+                sonatype(MavenPublication) {
+                    from components.java
+                    artifact sourcesJar
+                    artifact javadocJar
+
+                    afterEvaluate {
+                        groupId project.ext.groupId
+                        artifactId project.ext.artifactId
+                    }
+
+                    pom {
+                        name        = project.name
+                        description = "Android Gradle Model / ${project.ext.groupId} : ${project.ext.artifactId}"
+                        url         = 'https://shaka.rover.plus'
+                        packaging   = 'jar'
+                        licenses {
+                            license {
+                                name            = 'MIT License'
+                                url             = 'https://opensource.org/licenses/mit-license.php'
+                                distribution    = 'repo'
+                            }
+                        }
+                        scm {
+                            url                 = 'https://github.com/rover12421/AndroidGodModel/tree/master'
+                            connection          = 'scm:git:git://github.com/rover12421/AndroidGodModel.git'
+                            developerConnection = 'scm:git:git@github.com:rover12421/AndroidGodModel.git'
+                        }
+                        developers {
+                            developer {
+                                id      = 'rover12421'
+                                name    = 'Rover12421'
+                                email   = 'rover12421@163.com'
+                            }
+                        }
+                    }
+
                 }
             }
+
+            repositories {
+                maven {
+                    url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+                    credentials {
+                        username "${sonatypeUsername}"
+                        password "${sonatypePassword}"
+                    }
+                }
+            }
+        }
+
+        apply plugin: 'signing'
+        signing {
+            sign publishing.publications.sonatype
         }
 
         dependencies {

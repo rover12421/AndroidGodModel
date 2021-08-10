@@ -1,13 +1,7 @@
-pluginManagement {
-    repositories {
-        maven { url uri("$rootDir/repo") }
-        mavenCentral()
-    }
-}
-
 rootProject.name = "AndroidGodModel"
 include ':godModel'
 include ':myapp', ':mylib'
 
 include ':hash:base', ':hash:plugin'
 include ':nameHash:base', ':nameHash:plugin'
+include ':removeAnnotation:plugin'
