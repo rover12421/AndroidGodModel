@@ -13,7 +13,7 @@ buildscript {
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-//apply plugin: 'com.rover12421.android.godmodel.core'
+//apply plugin: 'godmodel.core'
 
 android {
     compileSdkVersion 31
