@@ -2,17 +2,13 @@
 
 package com.rover12421.android.godmodel.core.util
 
-import kotlin.reflect.KClass
-
 inline fun String.toJvmStyle() = AsmUtil.toJvmClazz(this)
 inline fun String.toJavaStyle() = AsmUtil.toJavaClazz(this)
-inline fun String.toJvmType() = AsmUtil.toJvmType(this)
-inline fun Class<*>.toJvmType() = AsmUtil.toJvmType(this.name)
-inline fun KClass<*>.toJvmType() = AsmUtil.toJvmType(this.java.name)
 
 /**
  * Created by rover12421 on 3/10/17.
  */
+@Suppress("unused")
 object AsmUtil {
     /**
      * 转出Jvm类型
@@ -85,7 +81,7 @@ object AsmUtil {
     }
 
     @JvmStatic
-    fun getFullClassNameByJavaStyple(packageName: String?, clazzName: String): String {
+    fun getFullClassNameByJavaStyle(packageName: String?, clazzName: String): String {
         if (packageName == null || packageName.isBlank()) {
             return clazzName
         }
@@ -94,7 +90,7 @@ object AsmUtil {
     }
 
     @JvmStatic
-    fun getFullClassNameByJvmStyple(packageName: String?, clazzName: String): String {
+    fun getFullClassNameByJvmStyle(packageName: String?, clazzName: String): String {
         if (packageName == null || packageName.isBlank()) {
             return clazzName
         }

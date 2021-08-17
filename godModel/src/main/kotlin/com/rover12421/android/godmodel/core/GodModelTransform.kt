@@ -18,6 +18,7 @@ import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
 
+@Suppress("MemberVisibilityCanBePrivate")
 open class GodModelTransform(val project: Project) : Transform() {
     private val logger: Logger = project.logger
 
@@ -60,10 +61,10 @@ open class GodModelTransform(val project: Project) : Transform() {
     }
 
     override fun getScopes(): MutableSet<in QualifiedContent.Scope> {
-        if (project.extensions.findByType(AppExtension::class.java) != null) {
-            return TransformManager.SCOPE_FULL_PROJECT
+        return if (project.extensions.findByType(AppExtension::class.java) != null) {
+            TransformManager.SCOPE_FULL_PROJECT
         } else {
-            return TransformManager.PROJECT_ONLY
+            TransformManager.PROJECT_ONLY
         }
     }
 

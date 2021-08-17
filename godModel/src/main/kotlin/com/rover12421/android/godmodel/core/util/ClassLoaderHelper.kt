@@ -2,6 +2,7 @@ package com.rover12421.android.godmodel.core.util
 
 import com.android.build.api.transform.TransformInput
 import com.android.build.gradle.AppExtension
+import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Project
 import java.io.File
@@ -11,7 +12,7 @@ import java.net.URLClassLoader
 object ClassLoaderHelper {
 
     private fun getAndroidJarPath(project: Project): String {
-        val appExtension = project.extensions.findByType(AppExtension::class.java) ?: project.extensions.findByType(LibraryExtension::class.java)
+        val appExtension: BaseExtension? = project.extensions.findByType(AppExtension::class.java) ?: project.extensions.findByType(LibraryExtension::class.java)
         if (appExtension != null) {
             return "${appExtension.sdkDirectory}${File.separator}platforms${File.separator}${appExtension.compileSdkVersion}${File.separator}android.jar"
         } else {

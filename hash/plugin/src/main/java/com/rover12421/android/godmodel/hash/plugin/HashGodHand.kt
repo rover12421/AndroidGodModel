@@ -9,17 +9,12 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.codec.digest.MurmurHash2
 import org.apache.commons.codec.digest.MurmurHash3
 import org.gradle.api.Project
-import org.gradle.api.logging.LogLevel
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.ClassNode
 import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
 
-inline fun String.toJvmStyle() = AsmUtil.toJvmClazz(this)
-inline fun String.toJavaStyle() = AsmUtil.toJavaClazz(this)
-inline fun String.toJvmType() = AsmUtil.toJvmType(this)
-inline fun Class<*>.toJvmType() = AsmUtil.toJvmType(this.name)
 inline fun KClass<*>.toJvmType() = AsmUtil.toJvmType(this.java.name)
 
 @Suppress("UNCHECKED_CAST")

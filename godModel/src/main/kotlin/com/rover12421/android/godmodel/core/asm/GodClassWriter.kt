@@ -7,6 +7,7 @@ import com.rover12421.android.godmodel.core.asm.ClassReaderUtil.isImplements
 import com.rover12421.android.godmodel.core.asm.ClassReaderUtil.isInterface
 import org.objectweb.asm.ClassWriter
 
+@Suppress("CanBeParameter", "MemberVisibilityCanBePrivate")
 class GodClassWriter(val cl: ClassLoader, val flags: Int) : ClassWriter(flags) {
 
     override fun getCommonSuperClass(type1: String?, type2: String?): String {
